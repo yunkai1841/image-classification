@@ -31,7 +31,7 @@ def add_margin(image, color, size):
 
     return new_image
 
-def to_square(image, color):
+def to_square(image, color=(0, 0, 0)):
     """
     Resize an image to a square.
 
@@ -111,7 +111,8 @@ def resize_images(
     size: tuple,
     deep: bool = False,
     exts: tuple = ('.jpg', '.png'),
-    keep_aspect_ratio: bool = True):
+    keep_aspect_ratio: bool = True,
+    postprocess: callable = None):
     """
     Resize images in a given directory to a given size.
 
@@ -129,6 +130,8 @@ def resize_images(
         Tuple of file extensions to search for.
     keep_aspect_ratio : bool
         If True, keep the aspect ratio of the image.
+    postprocess : callable
+        Function to apply to the image after resizing.
     """
     if not os.path.exists(input_dir):
         raise Exception('Input directory does not exist')
@@ -142,14 +145,18 @@ def resize_images(
                 if file.endswith(exts):
                     image = Image.open(os.path.join(root, file))
                     image = resize_image(image, size, keep_aspect_ratio)
+                    if postprocess is not None:
+                        image = postprocess(image)
                     image.save(os.path.join(output_dir, file))
     else:
         for file in glob.glob(os.path.join(input_dir, '*')):
             if file.endswith(exts):
                 image = Image.open(file)
                 image = resize_image(image, size, keep_aspect_ratio)
+                if postprocess is not None:
+                    image = postprocess(image)
                 image.save(os.path.join(output_dir, os.path.basename(file)))
 
 
 if __name__ == '__main__':
-    resize_images('images', 'resized_images', (256, 256))
+    resize_images('images', 'resized_images', (256, 256), postprocess=to_square)
