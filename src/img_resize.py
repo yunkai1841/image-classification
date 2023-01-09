@@ -15,7 +15,7 @@ def add_margin(image, color, size):
         Image to add a margin to.
     color : tuple
         Color of the margin.
-    size : int
+    size : tuple
         Size of the margin.
 
     Returns
@@ -24,10 +24,10 @@ def add_margin(image, color, size):
         Image with a margin.
     """
     width, height = image.size
-    new_width = width + 2 * size
-    new_height = height + 2 * size
+    new_width = width + 2 * size[0]
+    new_height = height + 2 * size[1]
     new_image = Image.new('RGB', (new_width, new_height), color)
-    new_image.paste(image, (size, size))
+    new_image.paste(image, size)
 
     return new_image
 
@@ -48,10 +48,11 @@ def to_square(image, color=(0, 0, 0)):
         Resized image.
     """
     width, height = image.size
+    #! TODO: fix even-odd bug (e.g. 256x255)
     if width > height:
-        image = add_margin(image, color, (width - height) // 2)
+        image = add_margin(image, color, (0, (width - height) // 2))
     elif height > width:
-        image = add_margin(image, color, (height - width) // 2)
+        image = add_margin(image, color, ((height - width) // 2, 0))
 
     return image
 
