@@ -5,8 +5,74 @@ import os
 import glob
 from PIL import Image
 
+def add_margin(image, color, size):
+    """
+    Add a margin to an image.
+
+    Parameters
+    ----------
+    image : PIL.Image
+        Image to add a margin to.
+    color : tuple
+        Color of the margin.
+    size : int
+        Size of the margin.
+
+    Returns
+    -------
+    PIL.Image
+        Image with a margin.
+    """
+    width, height = image.size
+    new_width = width + 2 * size
+    new_height = height + 2 * size
+    new_image = Image.new('RGB', (new_width, new_height), color)
+    new_image.paste(image, (size, size))
+
+    return new_image
+
+def to_square(image, color):
+    """
+    Resize an image to a square.
+
+    Parameters
+    ----------
+    image : PIL.Image
+        Image to resize.
+    color : tuple
+        Color of the margin.
+
+    Returns
+    -------
+    PIL.Image
+        Resized image.
+    """
+    width, height = image.size
+    if width > height:
+        image = add_margin(image, color, (width - height) // 2)
+    elif height > width:
+        image = add_margin(image, color, (height - width) // 2)
+
+    return image
 
 def resize_image(image, size, keep_aspect_ratio=True):
+    """
+    Resize an image to a given size.
+
+    Parameters
+    ----------
+    image : PIL.Image
+        Image to resize.
+    size : tuple
+        Size of the output image.
+    keep_aspect_ratio : bool
+        If True, keep the aspect ratio of the image.
+
+    Returns
+    -------
+    PIL.Image
+        Resized image.
+    """
     if keep_aspect_ratio:
         image.thumbnail(size, Image.Resampling.LANCZOS)
     else:
