@@ -130,3 +130,5 @@ dmypy.json
 
 config.json
 data/
+images/
+resized_images/
