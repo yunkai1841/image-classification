@@ -1,9 +1,26 @@
 """
-Resize images to a given size.
+Image resize tools
 """
 import os
 import glob
 from PIL import Image
+from torchvision import transforms
+
+def to_tensor(image):
+    """
+    Convert an image to a tensor.
+
+    Parameters
+    ----------
+    image : PIL.Image
+        Image to convert.
+
+    Returns
+    -------
+    torch.Tensor
+        Image as a tensor.
+    """
+    return transforms.ToTensor()(image)
 
 def add_margin(image, color, size):
     """
