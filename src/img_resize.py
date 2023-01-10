@@ -1,10 +1,12 @@
 """
 Image resize tools
 """
-import os
 import glob
+import os
+
 from PIL import Image
 from torchvision import transforms
+
 
 def to_tensor(image):
     """
@@ -22,9 +24,12 @@ def to_tensor(image):
     """
     return transforms.ToTensor()(image)
 
+
 def add_margin(image, color, size):
     """
     Add a margin to an image.
+    Margin left and right is fixed to size[0].
+    Margin top and bottom is fixed to size[1].
 
     Parameters
     ----------
@@ -48,6 +53,7 @@ def add_margin(image, color, size):
 
     return new_image
 
+
 def to_square(image, color=(0, 0, 0)):
     """
     Resize an image to a square.
@@ -65,13 +71,19 @@ def to_square(image, color=(0, 0, 0)):
         Resized image.
     """
     width, height = image.size
-    #! TODO: fix even-odd bug (e.g. 256x255)
     if width > height:
-        image = add_margin(image, color, (0, (width - height) // 2))
+        new_image = Image.new('RGB', (width, width), color)
     elif height > width:
-        image = add_margin(image, color, ((height - width) // 2, 0))
+        new_image = Image.new('RGB', (height, height), color)
+    else:
+        return image
 
-    return image
+    new_image.paste(
+        image,
+        ((new_image.width - width) // 2, (new_image.height - height) // 2))
+
+    return new_image
+
 
 def crop_image(image, size):
     """
@@ -96,6 +108,7 @@ def crop_image(image, size):
     bottom = (height + size[1]) // 2
 
     return image.crop((left, top, right, bottom))
+
 
 def resize_image(image, size, keep_aspect_ratio=True):
     """
@@ -124,13 +137,13 @@ def resize_image(image, size, keep_aspect_ratio=True):
 
 
 def resize_images(
-    input_dir: str,
-    output_dir: str,
-    size: tuple,
-    deep: bool = False,
-    exts: tuple = ('.jpg', '.png'),
-    keep_aspect_ratio: bool = True,
-    postprocess: callable = None):
+        input_dir: str,
+        output_dir: str,
+        size: tuple,
+        deep: bool = False,
+        exts: tuple = ('.jpg', '.png'),
+        keep_aspect_ratio: bool = True,
+        postprocess: callable = None):
     """
     Resize images in a given directory to a given size.
 
@@ -177,4 +190,5 @@ def resize_images(
 
 
 if __name__ == '__main__':
-    resize_images('images', 'resized_images', (256, 256), postprocess=to_square)
+    resize_images('images', 'resized_images',
+                  (256, 256), postprocess=to_square)
