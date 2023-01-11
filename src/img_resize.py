@@ -143,7 +143,8 @@ def resize_images(
         deep: bool = False,
         exts: tuple = ('.jpg', '.png'),
         keep_aspect_ratio: bool = True,
-        postprocess=None):
+        keep_file_name: bool = True,
+        postprocess: callable = None):
     """
     Resize images in a given directory to a given size.
 
@@ -161,6 +162,8 @@ def resize_images(
         Tuple of file extensions to search for.
     keep_aspect_ratio : bool
         If True, keep the aspect ratio of the image.
+    keep_file_name : bool
+        If True, keep the file name of the image.
     postprocess : Optional[Callable[[PIL.Image], PIL.Image]]
         Function to apply to the image after resizing.
     """
@@ -170,6 +173,7 @@ def resize_images(
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
+    image_count = 0
     if deep:
         for root, dirs, files in os.walk(input_dir):
             for file in files:
@@ -178,7 +182,12 @@ def resize_images(
                     image = resize_image(image, size, keep_aspect_ratio)
                     if postprocess is not None:
                         image = postprocess(image)
-                    image.save(os.path.join(output_dir, file))
+                    if keep_file_name:
+                        image.save(os.path.join(output_dir, file))
+                    else:
+                        image.save(os.path.join(output_dir, str(
+                            image_count) + os.path.splitext(file)[1]))
+                    image_count += 1
     else:
         for file in glob.glob(os.path.join(input_dir, '*')):
             if file.endswith(exts):
@@ -186,9 +195,16 @@ def resize_images(
                 image = resize_image(image, size, keep_aspect_ratio)
                 if postprocess is not None:
                     image = postprocess(image)
-                image.save(os.path.join(output_dir, os.path.basename(file)))
+                if keep_file_name:
+                    image.save(os.path.join(
+                        output_dir, os.path.basename(file)))
+                else:
+                    image.save(os.path.join(output_dir, str(
+                        image_count) + os.path.splitext(file)[1]))
+                image_count += 1
 
 
 if __name__ == '__main__':
-    resize_images('images/novelai', 'resized_images/novelai', (256, 256), deep=True,
+    resize_images('images/danbooru', 'resized_images/danbooru', (256, 256),
+                  deep=True, keep_file_name=False,
                   postprocess=(lambda image: crop_image(to_square(image), (224, 224))))
