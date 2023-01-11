@@ -143,7 +143,7 @@ def resize_images(
         deep: bool = False,
         exts: tuple = ('.jpg', '.png'),
         keep_aspect_ratio: bool = True,
-        postprocess: callable = None):
+        postprocess=None):
     """
     Resize images in a given directory to a given size.
 
@@ -161,7 +161,7 @@ def resize_images(
         Tuple of file extensions to search for.
     keep_aspect_ratio : bool
         If True, keep the aspect ratio of the image.
-    postprocess : callable
+    postprocess : Optional[Callable[[PIL.Image], PIL.Image]]
         Function to apply to the image after resizing.
     """
     if not os.path.exists(input_dir):
@@ -190,5 +190,5 @@ def resize_images(
 
 
 if __name__ == '__main__':
-    resize_images('images', 'resized_images',
-                  (256, 256), postprocess=to_square)
+    resize_images('images/novelai', 'resized_images/novelai', (256, 256), deep=True,
+                  postprocess=(lambda image: crop_image(to_square(image), (224, 224))))
