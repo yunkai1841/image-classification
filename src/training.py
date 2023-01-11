@@ -40,8 +40,9 @@ def main():
     # Parameters
     net = AlexNet(num_classes=2)
     criterion = nn.CrossEntropyLoss()
-    device = torch.device('cuda:9' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+    print(f"Using device: {device}")
 
     preprocess = lambda img: to_tensor(
         crop_image(
@@ -58,13 +59,21 @@ def main():
     test_data = ImageFolder('images', transform=preprocess)
     test_loader = DataLoader(test_data, batch_size=64, shuffle=True)
 
+    print(f"Training data: {len(training_data)}")
+    print(f"Test data: {len(test_data)}")
+
+    net.to(device)
+
     # Train the model
     for epoch in range(1, 10):
         train(net, train_loader, criterion, optimizer, device)
         test(net, test_loader, criterion, device)
+        print(f"Epoch {epoch} done")
+    print("Training done")
 
     # Save the model
     torch.save(net.state_dict(), 'model.pth')
+    print("Model saved")
 
 
 if __name__ == '__main__':
