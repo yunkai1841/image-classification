@@ -132,3 +132,5 @@ config.json
 data/
 images/
 resized_images/
+
+.vscode/
