@@ -76,7 +76,7 @@ def main():
     print("Training done")
 
     # Save the model
-    torch.save(net.state_dict(), 'model.pth')
+    torch.save(net.state_dict(), 'output/model.pt')
     print("Model saved")
 
 
