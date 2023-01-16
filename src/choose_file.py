@@ -4,6 +4,7 @@ Choose files from a directory
 
 import os
 import random
+import shutil
 
 
 def choose_file(directory):
@@ -23,9 +24,9 @@ def choose_files(directory, number, deep=False, filter=None, recursive=False):
         for file in os.listdir(directory):
             if is_directory(os.path.join(directory, file)):
                 files += choose_files(os.path.join(directory, file),
-                                      number, deep, filter, recursive)
+                                      number, deep, filter, recursive=True)
             elif filter(file):
-                files.append(file)
+                files.append(os.path.join(directory, file))
         if recursive:
             return files
         else:
@@ -51,7 +52,13 @@ def is_directory(file):
     return os.path.isdir(file)
 
 
+def move_files(files, source, destination):
+    """
+    Move files from a directory to another
+    """
+    for file in files:
+        shutil.move(os.path.join(source, file), destination)
+
 if __name__ == '__main__':
-    print(choose_file('.'))
-    print(is_directory('.'))
-    print(choose_files('data', 10, deep=True, filter=is_image))
+    files = choose_files('resized_images/danbooru', 10000, deep=True, filter=is_image)
+    move_files(files, '', 'data/danbooru')
