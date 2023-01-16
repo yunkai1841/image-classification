@@ -130,6 +130,8 @@ dmypy.json
 
 config.json
 data/
+training_data/
+test_data/
 images/
 resized_images/
 
