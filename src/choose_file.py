@@ -15,7 +15,7 @@ def choose_file(directory):
     return random.choice(files)
 
 
-def choose_files(directory, number, deep=False, filter=None, recursive=False):
+def choose_files(directory, number, deep=False, filter=(lambda x: True), recursive=False):
     """
     Choose a random file from a directory
     """
@@ -60,5 +60,5 @@ def move_files(files, source, destination):
         shutil.move(os.path.join(source, file), destination)
 
 if __name__ == '__main__':
-    files = choose_files('resized_images/danbooru', 10000, deep=True, filter=is_image)
+    files = choose_files('resized_images/danbooru', 10000, deep=True)
     move_files(files, '', 'data/danbooru')
