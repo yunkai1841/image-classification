@@ -17,6 +17,7 @@ def train(model, train_loader, criterion, optimizer, device):
         loss = criterion(output, target)
         loss.backward()
         optimizer.step()
+        print(loss)
 
 
 def test(model, test_loader, criterion, device):
@@ -40,7 +41,7 @@ def main():
     # Parameters
     net = AlexNet(num_classes=2)
     criterion = nn.CrossEntropyLoss()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cuda:3' if torch.cuda.is_available() else 'cpu')
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     print(f"Using device: {device}")
 
@@ -53,10 +54,11 @@ def main():
         )
     )
 
-    training_data = ImageFolder('images', transform=preprocess)
+    training_data = ImageFolder('data')
+    print(training_data[0][0].shape)
     train_loader = DataLoader(training_data, batch_size=64, shuffle=True)
 
-    test_data = ImageFolder('images', transform=preprocess)
+    test_data = ImageFolder('data')
     test_loader = DataLoader(test_data, batch_size=64, shuffle=True)
 
     print(f"Training data: {len(training_data)}")
