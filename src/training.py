@@ -37,15 +37,8 @@ def test(model, test_loader, criterion, device):
         f"Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)")
 
 
-def main():
-    # Parameters
-    net = AlexNet(num_classes=2)
-    criterion = nn.CrossEntropyLoss()
-    device = torch.device('cuda:3' if torch.cuda.is_available() else 'cpu')
-    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
-    print(f"Using device: {device}")
-
-    preprocess = lambda img: to_tensor(
+def preprocess(img):
+    return to_tensor(
         crop_image(
             to_square(
                 resize_image(img, size=(256, 256))
@@ -54,11 +47,20 @@ def main():
         )
     )
 
-    training_data = ImageFolder('data', transform=transforms.ToTensor())
+
+def main():
+    # Parameters
+    net = AlexNet(num_classes=2)
+    criterion = nn.CrossEntropyLoss()
+    device = torch.device('cuda:3' if torch.cuda.is_available() else 'cpu')
+    optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
+    print(f"Using device: {device}")
+
+    training_data = ImageFolder('training_data', transform=transforms.ToTensor())
     print(training_data[0][0].shape)
     train_loader = DataLoader(training_data, batch_size=64, shuffle=True)
 
-    test_data = ImageFolder('data', transform=transforms.ToTensor())
+    test_data = ImageFolder('test_data', transform=transforms.ToTensor())
     test_loader = DataLoader(test_data, batch_size=64, shuffle=True)
 
     print(f"Training data: {len(training_data)}")
