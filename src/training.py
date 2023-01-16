@@ -54,11 +54,11 @@ def main():
         )
     )
 
-    training_data = ImageFolder('data')
+    training_data = ImageFolder('data', transform=transforms.ToTensor())
     print(training_data[0][0].shape)
     train_loader = DataLoader(training_data, batch_size=64, shuffle=True)
 
-    test_data = ImageFolder('data')
+    test_data = ImageFolder('data', transform=transforms.ToTensor())
     test_loader = DataLoader(test_data, batch_size=64, shuffle=True)
 
     print(f"Training data: {len(training_data)}")
