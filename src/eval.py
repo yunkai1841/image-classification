@@ -24,6 +24,7 @@ def main():
 
     test_data = ImageFolder('test_data', transform=transforms.ToTensor())
     test_loader = DataLoader(test_data, batch_size=32, shuffle=True)
+    print(f"Test set size: {len(test_data)}")
 
     test(net, test_loader, criterion, device)
 
