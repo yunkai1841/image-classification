@@ -132,8 +132,10 @@ config.json
 data/
 training_data/
 test_data/
+test_mini_data/
 images/
 resized_images/
+runs/
 
 .vscode/
 output.txt
