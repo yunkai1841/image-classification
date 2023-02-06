@@ -10,6 +10,10 @@ from torchsampler import ImbalancedDatasetSampler
 from torch.utils.tensorboard import SummaryWriter
 
 
+def print_wrapper(*args):
+    print(*args, flush=True)
+
+
 # %%
 def train_with_summary(model, train_loader, criterion, optimizer, device, writer, test_loader):
     model.train()
@@ -20,12 +24,10 @@ def train_with_summary(model, train_loader, criterion, optimizer, device, writer
         loss = criterion(output, target)
         loss.backward()
         optimizer.step()
-        print(loss)
+        print_wrapper(loss)
         writer.add_scalar('training loss', loss.item(), batch_idx)
-        writer.add_scalar(
-            'learning rate', optimizer.param_groups[0]['lr'], batch_idx)
-        if batch_idx % 500 == 0:
-            print("test for {}".format(batch_idx))
+        if batch_idx % 200 == 0:
+            print_wrapper("test for {}".format(batch_idx))
             test_with_summary(model, test_loader, criterion,
                               device, writer, batch_idx)
 
@@ -44,7 +46,7 @@ def test_with_summary(model, test_loader, criterion, device, writer, batch_idx):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-    print(
+    print_wrapper(
         f"Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)")
     writer.add_scalar('accuracy', 100. * correct /
                       len(test_loader.dataset), batch_idx)
@@ -60,7 +62,7 @@ def train(model, train_loader, criterion, optimizer, device):
         loss = criterion(output, target)
         loss.backward()
         optimizer.step()
-        print(loss)
+        print_wrapper(loss)
 
 
 # %%
@@ -77,7 +79,7 @@ def test(model, test_loader, criterion, device):
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
-    print(
+    print_wrapper(
         f"Test set: Average loss: {test_loss:.4f}, Accuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)")
 
 
@@ -85,12 +87,12 @@ def test(model, test_loader, criterion, device):
 net = AlexNet(num_classes=2)
 criterion = nn.CrossEntropyLoss()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(f"Using device: {device}")
+print_wrapper(f"Using device: {device}")
 
 # Training on multiple GPUs
-if torch.cuda.device_count() > 1:
-    print("Using {} GPUs".format(torch.cuda.device_count()))
-    net = nn.DataParallel(net)
+# if torch.cuda.device_count() > 1:
+#     print_wrapper("Using {} GPUs".format(torch.cuda.device_count()))
+#     net = nn.DataParallel(net)
 
 optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
 
@@ -104,30 +106,37 @@ preprocess = transforms.Compose([
 
 # %%
 training_data = ImageFolder('images', transform=preprocess)
-print(training_data[0][0].shape)
+print_wrapper(training_data[0][0].shape)
 train_loader = DataLoader(
     training_data, sampler=ImbalancedDatasetSampler(training_data), batch_size=64)
 
-test_data = ImageFolder('test_mini_data', transform=transforms.ToTensor())
+test_data = ImageFolder('test_data', transform=transforms.ToTensor())
 test_loader = DataLoader(test_data, batch_size=64)
 
-print(f"Training data: {len(training_data)}")
-print(f"Test data: {len(test_data)}")
+print_wrapper(f"Training data: {len(training_data)}")
+print_wrapper(f"Test data: {len(test_data)}")
 
 net.to(device)
 
 # %% Train the model
 writer = SummaryWriter()
-train_with_summary(net, train_loader, criterion,
-                   optimizer, device, writer, test_loader)
+try:
+    train_with_summary(net, train_loader, criterion,
+                       optimizer, device, writer, test_loader)
+except KeyboardInterrupt:
+    print_wrapper("Training interrupted")
+    pass
+except Exception as e:
+    print_wrapper("Error occured: {}".format(e))
+    pass
 writer.close()
 # %%
-test_data2 = ImageFolder('test_data', transform=transforms.ToTensor())
-test_loader2 = DataLoader(test_data2, batch_size=64)
-test(net, test_loader2, criterion, device)
-print("Training done")
+# test_data2 = ImageFolder('test_data', transform=transforms.ToTensor())
+# test_loader2 = DataLoader(test_data2, batch_size=64)
+test(net, test_loader, criterion, device)
+print_wrapper("Training done")
 
 # %% Save the model
-model = net.module if hasattr(net, 'module') else net
-torch.save(model.state_dict(), 'model.pth')
-print("Model saved")
+# net = net.module if hasattr(net, 'module') else net
+torch.save(net.state_dict(), 'model.pth')
+print_wrapper("Model saved")
