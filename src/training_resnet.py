@@ -46,10 +46,10 @@ def main():
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(net.parameters(), lr=0.001)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    if torch.cuda.is_available():
-        net = nn.DataParallel(net, device_ids=list(
-            range(torch.cuda.device_count())))
-        torch.backends.cudnn.benchmark = True
+    # Training on multiple GPUs
+    # if torch.cuda.device_count() > 1:
+    #     print_wrapper("Using {} GPUs".format(torch.cuda.device_count()))
+    #     net = nn.DataParallel(net)
 
     print_wrapper(f"Using device: {device}")
 
@@ -81,6 +81,7 @@ def main():
     print_wrapper("Training done")
 
     # Save the model
+    # net = net.module if hasattr(net, 'module') else net
     torch.save(net.state_dict(), 'output/model.pt')
     print_wrapper("Model saved")
 
