@@ -1,6 +1,22 @@
 # image-classification
 Traning model for classification images using PyTorch
 
+## My experiment
+classify Human vs Stable-diffusion
+人間が描いた絵とAIが描いた絵の識別
+
+I trained AlexNet and ResNet aim to detect AI drawn picture on the Internet. 
+
+### Dataset
+Human picture: Danbooru2021 dataset
+
+AI picture: Downloaded from pixiv.net
+[yunkai1841/pixiv-scraper](https://github.com/yunkai1841/pixiv-scraper)
+
+### Result
+Accuracy is ~70%. 
+Pictures drawn by humans are classified as AI depending on how they are drawn.
+It is better to find a new method to detect AI picture. 
 
 ## scripts
 | script              | description                              |
